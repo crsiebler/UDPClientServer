@@ -5,8 +5,8 @@
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
 
-#define DEBUG 1         /* Boolean to Enable/Disable Debugging Output */
-#define STR_SIZE 6	/* Length of String to represent States */
+#define DEBUG 1 /* Boolean to Enable/Disable Debugging Output */
+#define STR_SIZE 6 /* Length of String to represent States */
 
 int requestNumber = 0;  /* Counter for the Request Number */
 
