@@ -108,7 +108,6 @@ int main(int argc, char* argv[]) {
 
         /* Deallocate the Structure Memory */
         free(req);
-        free(clientIP);
     }
     /* NOT REACHED */
 }
