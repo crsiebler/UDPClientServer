@@ -4,6 +4,7 @@
 #include <stdlib.h>     /* for atoi(), exit(), and rand() */
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
+#include <time.h>       /* for time() */
 
 #define DEBUG 1 /* Boolean to Enable/Disable Debugging Output */
 #define STR_SIZE 6 /* Length of String to represent States */
@@ -38,6 +39,9 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Usage:  %s <UDP SERVER PORT>\n", argv[0]);
         exit(1);
     }
+    
+    /* Make Random Code Based on Time */
+    srand(time(NULL));
 
     echoServPort = atoi(argv[1]); /* Local Port */
 
