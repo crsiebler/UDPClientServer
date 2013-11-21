@@ -6,9 +6,10 @@
 #include <unistd.h>     /* for close() */
 
 #define ECHOMAX 255     /* Longest string to echo */
-#define DEBUG 1	/* Boolean to Enable/Disable Debugging Output */
+#define DEBUG 1         /* Boolean to Enable/Disable Debugging Output */
 #define STR_SIZE 6	/* Length of String to represent States */
 
+/* Data Structure to Send through UDP */
 struct request {
     char client_ip[16]; /* To hold client IP address in dotted decimal */
     int inc; /* Incarnation number of client */
@@ -38,26 +39,26 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    echoServPort = atoi(argv[1]); /* First arg:  local port */
+    echoServPort = atoi(argv[1]); /* Local Port */
 
     /* Create socket for sending/receiving datagrams */
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         DieWithError("socket() failed");
 
     /* Construct local address structure */
-    memset(&echoServAddr, 0, sizeof (echoServAddr)); /* Zero out structure */
+    memset(&echoServAddr, 0, sizeof(echoServAddr)); /* Zero out structure */
     echoServAddr.sin_family = AF_INET; /* Internet address family */
     echoServAddr.sin_addr.s_addr = htonl(INADDR_ANY); /* Any incoming interface */
     echoServAddr.sin_port = htons(echoServPort); /* Local port */
 
     /* Bind to the local address */
-    if (bind(sock, (struct sockaddr *) &echoServAddr, sizeof (echoServAddr)) < 0)
+    if (bind(sock, (struct sockaddr *) &echoServAddr, sizeof(echoServAddr)) < 0)
         DieWithError("bind() failed");
 
     /* Run forever */
     for (;;) {
         /* Set the size of the in-out parameter */
-        cliAddrLen = sizeof (clientAddr);
+        cliAddrLen = sizeof(clientAddr);
 
         /* Allocate the Structure Memory */
         struct request* req = malloc(sizeof *req);
