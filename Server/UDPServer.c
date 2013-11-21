@@ -18,13 +18,13 @@ struct request {
     char c; /* Random character client sends to server */
 };
 
-void DieWithError(const char *errorMessage) {
+void DieWithError(const char* errorMessage) {
     /* External error handling function */
     perror(errorMessage);
     exit(1);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     int sock; /* Socket */
     struct sockaddr_in echoServAddr; /* Local address */
     struct sockaddr_in clientAddr; /* Client address */
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         int i;
 
         /* Block until receive message from a client */
-        if (recvfrom(sock, req, sizeof (*req), 0, (struct sockaddr *) &clientAddr, &cliAddrLen) < 0)
+        if (recvfrom(sock, req, sizeof(*req), 0, (struct sockaddr *) &clientAddr, &cliAddrLen) < 0)
             DieWithError("recvfrom() failed");
 
         /* Gather Client IP Address */
