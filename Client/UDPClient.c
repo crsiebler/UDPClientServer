@@ -5,9 +5,12 @@
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
 
-#define DEBUG 1	/* Boolean to Enable/Disable Debugging Output */
+#define DEBUG 1         /* Boolean to Enable/Disable Debugging Output */
 #define STR_SIZE 6	/* Length of String to represent States */
 
+int requestNumber = 0;  /* Counter for the Request Number */
+
+/* Data Structure to Send through UDP */
 struct request {
     char client_ip[16]; /* To hold client IP address in dotted decimal */
     int inc; /* Incarnation number of client */
@@ -22,58 +25,70 @@ void DieWithError(const char *errorMessage) {
     exit(1);
 }
 
+/**
+ * randomRequest Method
+ * 
+ * Allocates memory for the random request. Then grabs the
+ * Global counter for the request number (Starting at 0). Then
+ * assigns a random character (a-z or 97-122 ASCII). Increments Request Number.
+ */
 struct request* randomRequest() {
-    struct request* req = malloc(sizeof *req);
-
+    struct request* req = malloc(sizeof *req); /* Allocate Space for Random Request */
+    req->req = requestNumber; /* Use Global Counter for Request Number */
+    req->c = (char) rand() % 26 + 97; /* Generate Random Number (97-122) Cast to Char */
+    requestNumber++;
     return req;
 }
 
-int main(int argc, char *argv[]) {
+/**
+ * getIncarnationNumber Method
+ * 
+ * Searches stable storage for the previous incarnations of the request.
+ * If found increment number and return. Else return 0 and store request.
+ */
+int getIncarnationNumber(int num) {
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
     int sock; /* Socket descriptor */
     struct sockaddr_in serverAddr; /* Echo server address */
     struct sockaddr_in fromAddr; /* Source address of echo */
     unsigned short serverPort; /* Echo server port */
     unsigned int fromSize; /* In-out of address size for recvfrom() */
-    char *servIP; /* IP address of server */
+    char* servIP; /* IP address of server */
     char echoBuffer[STR_SIZE]; /* Buffer for receiving echoed string */
-    int echoStringLen; /* Length of string to echo */
     int respStringLen; /* Length of received response */
+    struct request* req; /* Pointer for Random Request Structure */
 
-    if ((argc < 2) || (argc > 3)) {
+    if (argc != 4) {
         /* Test for correct number of arguments */
-        fprintf(stderr, "Usage: %s <Server IP> [<Echo Port>]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <Server IP> <Echo Port> <Client Number>\n", argv[0]);
         exit(1);
     }
 
-    servIP = argv[1]; /* First arg: server IP address (dotted quad) */
+    /* Server IP address (dotted quad) */
+    servIP = argv[1];
 
-    if (argc == 3) {
-        /* Use given port, if any */
-        serverPort = atoi(argv[2]);
-    } else {
-        /* 7 is the well-known port for the echo service */
-        serverPort = 7;
-    }
-
+    /* Use given port */
+    serverPort = atoi(argv[2]);
+    
     /* Create a datagram/UDP socket */
     if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
         DieWithError("socket() failed");
 
     /* Construct the server address structure */
-    memset(&serverAddr, 0, sizeof (serverAddr)); /* Zero out structure */
+    memset(&serverAddr, 0, sizeof(serverAddr)); /* Zero out structure */
     serverAddr.sin_family = AF_INET; /* Internet addr family */
     serverAddr.sin_addr.s_addr = inet_addr(servIP); /* Server IP address */
     serverAddr.sin_port = htons(serverPort); /* Server port */
 
-    struct request* req = malloc(sizeof *req);
-    //	strcpy(req->client_ip, "10.0.1.50\0");
-    req->c = 'A';
-    req->client = 0;
-    req->inc = 0;
-    req->req = 0;
-
+    req = randomRequest(); /* Generate a random Request */
+    req->client = atoi(argv[3]); /* Use given Client ID */
+    req->inc = getIncarnationNumber(req->req); /* Retrieve Incarnation Number */
+    
     /* Send the Structure to the server */
-    if (sendto(sock, req, sizeof (*req), 0, (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0)
+    if (sendto(sock, req, sizeof(*req), 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0)
         DieWithError("sendto() sent a different number of bytes than expected");
 
     /* Recv a response */
@@ -87,9 +102,12 @@ int main(int argc, char *argv[]) {
     //	}
 
     /* null-terminate the received data */
-    //	echoBuffer[respStringLen] = '\0';
-    //	printf("Received: %s\n", echoBuffer); /* Print the echoed arg */
+    echoBuffer[STR_SIZE] = '\0';
+    printf("Received: %s\n", echoBuffer); /* Print the echoed arg */
 
+    /* Deallocate Memory of Pointers */
+    free(req);
+    
     close(sock);
     exit(0);
 }
