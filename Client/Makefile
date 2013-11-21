@@ -1,7 +1,6 @@
-src = *.c
-hdr = *.h
-dep = $(hdr) $(src)
-bin = a.out
+src = UDPClient.c
+dep = $(src)
+bin = client
 
 $(bin): $(dep)
 	gcc -Wall $(src) -o $(bin);
@@ -10,4 +9,3 @@ all: $(bin)
 
 clean:
 	rm $(bin);
-
