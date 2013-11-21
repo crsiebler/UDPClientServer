@@ -87,6 +87,18 @@ int main(int argc, char* argv[]) {
     req->client = atoi(argv[3]); /* Use given Client ID */
     req->inc = getIncarnationNumber(req->req); /* Retrieve Incarnation Number */
     
+    if (DEBUG) {
+        printf("\n");
+        printf("NEW REQUEST\n");
+        printf("===========\n");
+        printf("CLIENT IP: %s\n", req->client_ip);
+        printf("CLIENT ID: %d\n", req->client);
+        printf("INCREMENT: %d\n", req->inc);
+        printf("CHARACTER: %c\n", req->c);
+        printf("\n");
+        printf("\n");
+    }
+    
     /* Send the Structure to the server */
     if (sendto(sock, req, sizeof(*req), 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0)
         DieWithError("sendto() sent a different number of bytes than expected");
