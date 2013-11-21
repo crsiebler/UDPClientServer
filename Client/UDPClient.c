@@ -91,7 +91,6 @@ int main(int argc, char* argv[]) {
         printf("\n");
         printf("NEW REQUEST\n");
         printf("===========\n");
-        printf("CLIENT IP: %s\n", req->client_ip);
         printf("CLIENT ID: %d\n", req->client);
         printf("INCREMENT: %d\n", req->inc);
         printf("CHARACTER: %c\n", req->c);
