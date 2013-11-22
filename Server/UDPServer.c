@@ -5,9 +5,11 @@
 #include <string.h>     /* for memset() */
 #include <unistd.h>     /* for close() */
 #include <time.h>       /* for time() */
+#include <unistd.h>
 
 #define DEBUG 1 /* Boolean to Enable/Disable Debugging Output */
 #define STR_SIZE 6 /* Length of String to represent States */
+#define ECHOMAX 255
 
 /* Data Structure to Send through UDP */
 struct request {
@@ -24,6 +26,7 @@ void DieWithError(const char* errorMessage) {
     exit(1);
 }
 
+
 int main(int argc, char* argv[]) {
     int sock; /* Socket */
     struct sockaddr_in echoServAddr; /* Local address */
@@ -33,6 +36,8 @@ int main(int argc, char* argv[]) {
     unsigned short echoServPort; /* Server port */
     int recvMsgSize; /* Size of received message */
     int i; /* Declare Counter for Loops */
+    int randomFailure;
+    char echoBuffer[ECHOMAX];
 
     if (argc != 2) {
         /* Test for correct number of parameters */
@@ -41,6 +46,7 @@ int main(int argc, char* argv[]) {
     }
     
     /* Make Random Code Based on Time */
+
     srand(time(NULL));
 
     echoServPort = atoi(argv[1]); /* Local Port */
@@ -78,40 +84,66 @@ int main(int argc, char* argv[]) {
         clientIP = inet_ntoa(clientAddr.sin_addr);
 
         printf("Handling client %s\n", clientIP);
-
-        /* Assign Client IP Address to Structure Char Array */
-        for (i = 0; i < strlen(clientIP); i++) {
-            req->client_ip[i] = clientIP[i];
-        }
-        
-        /* Modify Client String */
-        for (i = 4; i > 0; i--) {
-            // Loop through characters in String in reverse order
-            // assign previous character to current position
-            // moves character down an index.
-            clientString[i] = clientString[i-1];
-        }
-        
-        clientString[0] = req->c;
-        
-        if (DEBUG) {
-            printf("\n");
-            printf("NEW REQUEST\n");
-            printf("===========\n");
-            printf("CLIENT IP: %s\n", req->client_ip);
-            printf("CLIENT ID: %d\n", req->client);
-            printf("INCREMENT: %d\n", req->inc);
-            printf("CHARACTER: %c\n", req->c);
-            printf("\n");
-            printf("\n");
-        }
-
-        /* Send String back to the client */
-//        if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr)) != recvMsgSize)
-//                DieWithError("sendto() sent a different number of bytes than expected");
-
-        /* Deallocate the Structure Memory */
-        free(req);
+	
+	randomFailure = ((rand() % 10) + 1);
+	if (randomFailure >= 1 && randomFailure <= 8)
+	{
+	
+		/* Assign Client IP Address to Structure Char Array */
+		for (i = 0; i < strlen(clientIP); i++) {
+		req->client_ip[i] = clientIP[i];
+		}
+		
+		/* Modify Client String */
+		for (i = 4; i > 0; i--) {
+		// Loop through characters in String in reverse order
+		// assign previous character to current position
+		// moves character down an index
+.
+		clientString[i] = clientString[i-1];
+		}
+		
+		clientString[0] = req->c;
+		
+		
+		if (DEBUG) {
+		printf("\n");
+		printf("NEW REQUEST\n");
+		printf("===========\n");
+		printf("CLIENT IP: %s\n", req->client_ip);
+		printf("CLIENT ID: %d\n", req->client);
+		printf("INCREMENT: %d\n", req->inc);
+		printf("CHARACTER: %c\n", req->c);
+		printf("String returned to client: %s\n", clientString);
+		printf("\n");
+		printf("\n");
+		}
+	
+		/* Send String back to the client */
+		if (sendto(sock, clientString, sizeof(clientString), 0, (struct sockaddr *) &clientAddr, sizeof(clientAddr)) != sizeof(clientString))
+			 DieWithError("sendto() sent a different number of bytes than expected");
+	       // if (sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr)) != recvMsgSize)
+		//{
+		//	printf("sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr): %d\n", sendto(sock, //echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr)));
+		//	printf("recvMsgSize: %d\n", recvMsgSize);
+	        //        DieWithError("sendto() sent a different number of bytes than expected");
+		//}
+		//else
+		//{
+		//	printf("sendto(sock, echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr): %d\n", sendto(sock, //echoBuffer, recvMsgSize, 0, (struct sockaddr *) &clientAddr, sizeof (clientAddr)));
+		//	printf("recvMsgSize: %d\n", recvMsgSize);
+		//}
+	
+		/* Deallocate the Structure Memory */
+		free(req);
+	}
+	else if (randomFailure == 9)
+	{
+		printf("Dropping request without performing the request...\n\n");
+	}
+	else if (randomFailure == 10)
+	{
+	}
     }
     /* NOT REACHED */
 }
