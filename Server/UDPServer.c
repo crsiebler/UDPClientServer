@@ -22,7 +22,6 @@ struct request {
 	char c; /* Random character client sends to server */
 };
 
-<<<<<<< HEAD
 typedef enum {
 	IGNORE_REQUEST = -1,
 	PERFORM_SERVICE = -2,
@@ -42,8 +41,6 @@ char clientString[STR_SIZE] = "     \0"; /* Buffer for echo string */
 int sock; /* Socket */
 struct sockaddr_in clientAddr; /* Client address */
 
-=======
->>>>>>> 6d6b386f541afc3629973d1bf9b4af4757b4bcb3
 /**
  * printError Method
  * 
@@ -72,11 +69,8 @@ void printRequest(struct request* req) {
 	printf("\n");
 }
 
-<<<<<<< HEAD
 void printClientTable() {
-	int i;
-	int j;
-	int k;
+	int i, j, k;
 	int numberOfClientTableEntries = sizeof(clientTable) / sizeof(client_table_t*);
 	int numberOfReqResponse;
 	
@@ -176,8 +170,7 @@ response_type requestResponse(struct request *p_request) {
 }
 
 int PICIndex(struct request* p_request) {
-	int i;
-	int j;
+	int i, j;
 	
 	if (clientTable == NULL) return -1;
 	
@@ -197,6 +190,7 @@ int PICIndex(struct request* p_request) {
 void performRequest(struct request* p_request) {
 	int i;
 	srand(time(NULL));
+	
 	switch (rand() % 10) {
 		case 0:
 			printf("Performing Request...\n");
@@ -327,25 +321,10 @@ int main(int argc, char* argv[]) {
 	unsigned int cliAddrLen; /* Length of incoming message */
 	unsigned short echoServPort; /* Server port */
 	struct request* req; /* Declare Client's Request Structure */
-
 	char* clientIP; /* Declare the Client's IP String Pointer */
 	int i; /* Declare Counter for Loops */
 	char storedResponse[STR_SIZE];
 	int storedPICIndex;
-=======
-//struct request* performRequest() {}
-
-int main(int argc, char* argv[]) {
-	int sock; /* Socket */
-	struct sockaddr_in echoServAddr; /* Local address */
-	struct sockaddr_in clientAddr; /* Client address */
-	unsigned int cliAddrLen; /* Length of incoming message */
-	unsigned short echoServPort; /* Server port */
-	struct request* req; /* Declare Client's Request Structure */
-	char clientString[STR_SIZE] = "     \0"; /* Buffer for echo string */
-	char* clientIP; /* Declare the Client's IP String Pointer */
-	int i; /* Declare Counter for Loops */
->>>>>>> 6d6b386f541afc3629973d1bf9b4af4757b4bcb3
 
 	if (argc != 2) {
 		/* Test for correct number of parameters */
@@ -386,16 +365,14 @@ int main(int argc, char* argv[]) {
 
 		/* Gather Client IP Address */
 		clientIP = inet_ntoa(clientAddr.sin_addr);
-<<<<<<< HEAD
-
-=======
 		
->>>>>>> 6d6b386f541afc3629973d1bf9b4af4757b4bcb3
 		/* Assign Client IP Address to Structure Char Array */
 		for (i = 0; i < strlen(clientIP); i++) {
 			req->client_ip[i] = clientIP[i];
 		}
-<<<<<<< HEAD
+		
+		printf("\n");
+		printf("Handling client %s\n", clientIP);
 
 		/* Determine response to request */
 		response_type currentResponse = requestResponse(req);
@@ -431,67 +408,6 @@ int main(int argc, char* argv[]) {
 			printf("========================================================\n");
 		}
 
-		printf("\n");
-		printf("Handling client %s\n", clientIP);
-
-=======
-		
-		printf("\n");
-		printf("Handling client %s\n", clientIP);
-
-		switch (rand() % 10) {
-			case 0:
-				printf("Performing Request...\n");
-				
-				/* Modify Client String */
-				for (i = 4; i > 0; i--) {
-					// Loop through characters in String in reverse order
-					// assign previous character to current position
-					// moves character down an index
-					clientString[i] = clientString[i - 1];
-				}
-
-				clientString[0] = req->c;
-
-				if (DEBUG) printRequest(req);
-				if (DEBUG) printf("CLIENT STRING: %s\n\n", clientString);
-				
-				printf("Dropping request...\n");
-				printf("\n");
-				printf("========================================================\n");
-				break;
-			case 1:
-				printf("Dropping request without performing the request...\n");
-				printf("\n");
-				printf("========================================================\n");
-				break;
-			default:
-				printf("Performing Request...\n");
-				
-				/* Modify Client String */
-				for (i = 4; i > 0; i--) {
-					// Loop through characters in String in reverse order
-					// assign previous character to current position
-					// moves character down an index
-					clientString[i] = clientString[i - 1];
-				}
-
-				clientString[0] = req->c;
-
-				if (DEBUG) printRequest(req);
-				if (DEBUG) printf("CLIENT STRING: %s\n\n", clientString);
-				
-				/* Send String back to the client */
-				if (sendto(sock, clientString, STR_SIZE, 0, (struct sockaddr *) &clientAddr, sizeof(clientAddr)) != STR_SIZE)
-					printError("sendto() sent a different number of bytes than expected", TRUE);
-
-				printf("Request Sent...\n");
-				printf("\n");
-				printf("========================================================\n");
-				break;
-		}
-		
->>>>>>> 6d6b386f541afc3629973d1bf9b4af4757b4bcb3
 		/* Deallocate the Structure Memory */
 		free(req);
 	}
