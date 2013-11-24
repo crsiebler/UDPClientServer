@@ -119,7 +119,6 @@ int main(int argc, char* argv[]) {
 	struct sockaddr_in fromAddr; /* Source address of echo */
 	unsigned short serverPort; /* Echo server port */
 	unsigned int fromSize; /* In-out of address size for recvfrom() */
-	int flags; /* Declare flags for UDP Socket */
 	char* servIP; /* IP address of server */
 	char clientString[STR_SIZE] = "$$$$$\0"; /* Buffer for receiving Client String */
 	struct request* req; /* Pointer fornFile Random Request Structure */
@@ -150,12 +149,12 @@ int main(int argc, char* argv[]) {
 	if ((sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 		printError("socket() failed", TRUE);
 
-	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv)) < 0) {
+	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
 		printError("setsockopt() failed", TRUE);
 	}
 
 	/* Construct the server address structure */
-	memset(&serverAddr, 0, sizeof (serverAddr)); /* Zero out structure */
+	memset(&serverAddr, 0, sizeof(serverAddr)); /* Zero out structure */
 	serverAddr.sin_family = AF_INET; /* Internet addr family */
 	serverAddr.sin_addr.s_addr = inet_addr(servIP); /* Server IP address */
 	serverAddr.sin_port = htons(serverPort); /* Server port */
@@ -166,29 +165,37 @@ int main(int argc, char* argv[]) {
 
 		req = randomRequest(); /* Generate a random Request */
 		req->client = atoi(argv[3]); /* Use given Client ID */
-		req->inc = getIncarnationNumber(); /* Retrieve Incarnation Number */
+		req->inc = getIncarnationNumber(FALSE); /* Retrieve Incarnation Number */
 
 		if (DEBUG) printRequest(req);
 
 		do {
-			/* Grab next IncarnationNumber */
-			req->inc = getIncarnationNumber();
-			/* Send the Structure to the server */
-			if (sendto(sock, req, sizeof (*req), 0, (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0)
-				printError("sendto() sent a different number of bytes than expected", TRUE);
+			switch (rand() % 2) {
+				case 0:
+					/* Send the Structure to the server */
+					if (sendto(sock, req, sizeof(*req), 0, (struct sockaddr *) &serverAddr, sizeof(serverAddr)) < 0)
+						printError("sendto() sent a different number of bytes than expected", TRUE);
 
-			/* Recv a response */
-			fromSize = sizeof (fromAddr);
-			if (recvfrom(sock, clientString, STR_SIZE, 0, (struct sockaddr *) &fromAddr, &fromSize) != STR_SIZE) {
-				printError("recvfrom() failed", FALSE);
-			} else if (serverAddr.sin_addr.s_addr != fromAddr.sin_addr.s_addr) {
-				fprintf(stderr, "Error: received a packet from unknown source.\n");
-				exit(1);
-			} else {
-				packetSent = TRUE;
+					/* Recv a response */
+					fromSize = sizeof(fromAddr);
+					
+					if (recvfrom(sock, clientString, STR_SIZE, 0, (struct sockaddr *) &fromAddr, &fromSize) != STR_SIZE) {
+						printError("recvfrom() failed", FALSE);
+					} else if (serverAddr.sin_addr.s_addr != fromAddr.sin_addr.s_addr) {
+						fprintf(stderr, "Error: received a packet from unknown source.\n");
+						exit(1);
+					} else {
+						packetSent = TRUE;
+					}
+					
+					sleep(5);
+					break;
+				case 1:
+					/* Grab next IncarnationNumber */
+					req->inc = getIncarnationNumber(TRUE);
+					printf("CLIENT MACHINE FAIL\n");
+					break;
 			}
-
-			sleep(10);
 		} while (packetSent == FALSE);
 
 		/* null-terminate the received data */
